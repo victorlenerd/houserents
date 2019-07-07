@@ -5,23 +5,48 @@ services:
   api:
     build: 
       context: ./api
+      dockerfile: Dockerfile.dev
     ports:
       - "5000:5000"
+    environment:
+      - ENV=DEV
+      - DB_HOST=postgis
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_PORT=5432
+      - DATA_SERVER=http://scrapper:8080
     depends_on:
       - postgis
     command: "gunicorn -b :5000 --access-logfile - --error-logfile - main:app"
+    volumes:
+      - "./api:/home/houserents"
 
   scrapper:
     build: 
       context: ./scrapper
+      dockerfile: Dockerfile.dev
     ports: 
       - "8080:8080"
+    environment:
+      - PORT=8080
+      - DATA_SERVER=http://api:5000
+    volumes:
+      - "./scrapper/src:/usr/src/scrapper/src"
+    
 
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
       - "4040:4040"
+    volumes:
+      - "./frontend/src:/usr/src/hourserents/src"
+    environment:
+      - PORT=4040
+      - API_SERVER=http://0.0.0.0:5000
+      - MAP_API_KEY=AIzaSyCp3UKASbZkqvCnW3l_RLgM5Ik15JBKpPc
 
   postgis:
     image: mdillon/postgis

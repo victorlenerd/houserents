@@ -7,6 +7,8 @@ services:
       context: ./api
     ports:
       - "5000:5000"
+    env_file:
+      - ./api/.env
     depends_on:
       - postgis
     command: "gunicorn -b :5000 --access-logfile - --error-logfile - main:app"
@@ -16,25 +18,15 @@ services:
       context: ./scrapper
     ports: 
       - "8080:8080"
+    env_file:
+      - ./scrapper/.env
 
   frontend:
     build:
       context: ./frontend
+      args:
+        API_SERVER: api:5000
     ports:
       - "4040:4040"
-
-  postgis:
-    image: mdillon/postgis
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: postgres
-      POSTGRES_PASSWORD: postgres
-    networks:
-      - default
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    env_file:
+      - ./frontend/.env
