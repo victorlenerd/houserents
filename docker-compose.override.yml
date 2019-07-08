@@ -2,6 +2,14 @@ version: '3.7'
 
 services:
 
+  server:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - "./configs/dev/nginx/nginx.conf:/etc/nginx/nginx.conf"
+      - "./configs/dev/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf"
+  
   api:
     build: 
       context: ./api
